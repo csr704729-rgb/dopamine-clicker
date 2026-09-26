@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Dopamine Miner Clicker</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0"></script>
     <style>
@@ -15,16 +15,16 @@
         body[data-theme="toxic"] { --gold: #39ff14; --neon-blue: #00ff00; --bg-color: #001100; --theme-accent: #39ff14; --neon-purple: #00aa00; }
         body[data-theme="void"] { --gold: #9d00ff; --neon-blue: #d6aaff; --bg-color: #05000a; --theme-accent: #9d00ff; --neon-purple: #ff00ff; }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; user-select: none; }
-        body { background-color: var(--bg-color); background-image: radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, transparent 80%); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; transition: background-color 0.5s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, Arial, sans-serif; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg-color); background-image: radial-gradient(circle at center, rgba(255,255,255,0.08) 0%, transparent 80%); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; transition: background-color 0.5s; touch-action: manipulation; }
 
         @keyframes shake { 0%,100%{transform:translate(1px,1px)} 25%{transform:translate(-1px,-2px)} 50%{transform:translate(-3px,0)} 75%{transform:translate(3px,2px)} }
         .shake-active { animation: shake 0.3s; }
 
         /* LOGIN */
-        #auth-screen { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(circle at center, #1a1a24 0%, #050508 100%); display: flex; justify-content: center; align-items: center; transition: opacity 0.5s, visibility 0.5s; }
+        #auth-screen { position: fixed; inset: 0; z-index: 9999; background: radial-gradient(circle at center, #1a1a24 0%, #050508 100%); display: flex; justify-content: center; align-items: center; padding: 20px; transition: opacity 0.5s, visibility 0.5s; }
         #auth-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-        .auth-box { background: rgba(20, 20, 30, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px 45px; width: 90vw; max-width: 420px; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.9); }
+        .auth-box { background: rgba(20, 20, 30, 0.85); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 40px 45px; width: 100%; max-width: 420px; box-shadow: 0 30px 80px -20px rgba(0, 0, 0, 0.9); }
         .auth-logo { font-size: 3.5rem; text-align: center; filter: drop-shadow(0 0 20px var(--gold)); }
         .auth-title { text-align: center; font-size: 1.6rem; font-weight: 900; margin: 8px 0; background: linear-gradient(45deg, var(--gold), var(--neon-blue)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
         .auth-sub { text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 25px; }
@@ -53,7 +53,13 @@
         .combo-display { position: absolute; top: 20px; left: 20px; background: rgba(157,0,255,0.2); border: 1px solid var(--neon-purple); padding: 10px 20px; border-radius: 12px; font-weight: bold; color: #d6aaff; opacity: 0; transition: all 0.3s; }
         .combo-display.active { opacity: 1; }
         .pickaxe-container { position: relative; display: flex; justify-content: center; align-items: center; width: 300px; height: 300px; }
-        .pickaxe-btn { width: 200px; height: 200px; background: radial-gradient(circle, #2a2a35 0%, #15151a 100%); border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; font-size: 6rem; cursor: pointer; transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 5; }
+
+        /* MUTE BTN */
+        .mute-btn { position: absolute; top: 20px; right: 20px; width: 45px; height: 45px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 50%; font-size: 1.3rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; z-index: 20; }
+        .mute-btn:hover { background: rgba(255,255,255,0.15); transform: scale(1.1); }
+        .mute-btn:active { transform: scale(0.95); }
+
+        .pickaxe-btn { width: 200px; height: 200px; background: radial-gradient(circle, #2a2a35 0%, #15151a 100%); border: 2px solid rgba(255,255,255,0.1); border-radius: 50%; font-size: 6rem; cursor: pointer; transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 5; touch-action: manipulation; }
         .pickaxe-btn:active { transform: scale(0.9); }
         .floating-text { position: absolute; color: white; font-weight: bold; font-size: 1.5rem; pointer-events: none; animation: floatUp 1s ease-out forwards; z-index: 100; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
         .floating-text.crit { color: #ff3366; font-size: 2.5rem; }
@@ -62,6 +68,17 @@
         @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 1; } 100% { transform: translateY(-100px) scale(1.5); opacity: 0; } }
         .golden-nugget { position: absolute; width: 50px; height: 50px; background: radial-gradient(circle, #fff 0%, #ffcc00 50%, #ff8800 100%); border-radius: 50%; cursor: pointer; box-shadow: 0 0 20px #ffcc00; animation: pulse 1s infinite alternate; z-index: 50; }
         @keyframes pulse { from { transform: scale(1); } to { transform: scale(1.2); } }
+
+        /* ONBOARDING */
+        #onboarding { position: fixed; inset: 0; z-index: 200; pointer-events: none; display: none; }
+        #onboarding.active { display: block; }
+        .onboarding-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(3px); animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .onboarding-tip { position: absolute; background: rgba(20,20,30,0.98); border: 2px solid var(--gold); padding: 18px 28px; border-radius: 16px; font-size: 1.2rem; font-weight: bold; color: var(--gold); text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.8); animation: pulse 1.2s infinite alternate; z-index: 210; max-width: 90vw; }
+        .onboarding-tip.step-1 { top: 55%; left: 50%; transform: translate(-50%, 0); }
+        .onboarding-tip.step-2 { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .onboarding-tip.step-3 { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .onboarding-arrow { font-size: 2.5rem; display: block; margin-bottom: 8px; }
 
         .right-panel { display: flex; flex-direction: column; background: rgba(0,0,0,0.2); overflow: hidden; }
         .tabs { display: flex; border-bottom: 1px solid var(--border-color); background: rgba(0,0,0,0.3); overflow-x: auto; }
@@ -87,7 +104,6 @@
         .custom-btn:hover { background: rgba(255,255,255,0.2); }
         .custom-btn.selected { border-color: var(--gold); background: rgba(255,204,0,0.2); }
         .custom-btn.locked { opacity: 0.5; pointer-events: none; border-style: dashed; }
-        .custom-btn.danger { border-color: #ff3366; color: #ff3366; }
         .color-picker-wrapper { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.8rem; color: var(--text-muted); }
         .color-picker-wrapper input[type="color"] { -webkit-appearance: none; border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; padding: 0; background: transparent; overflow: hidden; }
         .color-picker-wrapper input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
@@ -97,7 +113,7 @@
         .log-version { font-weight: bold; color: var(--neon-blue); font-size: 0.9rem; }
         .log-desc { font-size: 0.85rem; margin-top: 5px; }
 
-        #toast-container { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; }
+        #toast-container { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 1000; max-width: calc(100vw - 40px); }
         .toast { background: rgba(20,20,30,0.95); border: 1px solid var(--gold); border-left: 5px solid var(--gold); padding: 15px 20px; border-radius: 8px; color: white; min-width: 250px; animation: slideInRight 0.5s; }
         @keyframes slideInRight { from { opacity: 0; transform: translateX(100%); } to { opacity: 1; transform: translateX(0); } }
 
@@ -113,6 +129,58 @@
         .cloud-status.saving { color: var(--gold); }
         .cloud-status.saved { color: #00ff88; }
         .cloud-status.error { color: #ff4466; }
+
+        /* ============================
+           📱 RESPONSIVE MÓVIL
+           ============================ */
+        @media (max-width: 900px) {
+            body { align-items: stretch; }
+            .game-container { width: 100vw; height: 100vh; max-width: none; border-radius: 0; grid-template-columns: 1fr; grid-template-rows: auto 1fr; border: none; }
+            .main-area { padding: 15px; border-right: none; border-bottom: 1px solid var(--border-color); min-height: 42vh; }
+            .stats-header { padding-top: 5px; }
+            .world-badge { font-size: 0.65rem; padding: 3px 10px; margin-bottom: 4px; }
+            .gold-display { font-size: 2.5rem; }
+            .gps-display { font-size: 0.95rem; }
+            .prestige-display { font-size: 0.75rem; }
+            .combo-display { top: 10px; left: 10px; padding: 6px 12px; font-size: 0.8rem; }
+            .mute-btn { top: 10px; right: 10px; width: 38px; height: 38px; font-size: 1.1rem; }
+            .pickaxe-container { width: 170px; height: 170px; }
+            .pickaxe-btn { width: 130px; height: 130px; font-size: 4rem; }
+            .floating-text { font-size: 1rem; }
+            .floating-text.crit { font-size: 1.6rem; }
+            .golden-nugget { width: 40px; height: 40px; }
+
+            .right-panel { overflow: hidden; }
+            .tab-btn { padding: 10px 4px; font-size: 1rem; }
+            .tab-content { padding: 12px; gap: 10px; }
+            .shop-item { padding: 12px; border-radius: 12px; }
+            .item-header { font-size: 0.95rem; }
+            .item-desc { font-size: 0.75rem; }
+            .custom-btn { padding: 6px 10px; font-size: 0.8rem; }
+            .color-picker-wrapper input[type="color"] { width: 34px; height: 34px; }
+            .profile-card { padding: 15px; }
+            .profile-card .avatar { width: 45px; height: 45px; font-size: 1.4rem; }
+            .stats-grid { gap: 6px; }
+            .stat-box { padding: 10px; }
+            .stat-value { font-size: 1.2rem; }
+            .stat-label { font-size: 0.7rem; }
+            .auth-box { padding: 28px 22px; }
+            .auth-logo { font-size: 2.8rem; }
+            .auth-title { font-size: 1.35rem; }
+            .auth-sub { font-size: 0.78rem; margin-bottom: 18px; }
+            .toast { padding: 12px 15px; min-width: 200px; font-size: 0.85rem; }
+            #toast-container { top: 10px; right: 10px; }
+            .onboarding-tip { font-size: 1rem; padding: 14px 20px; }
+            .onboarding-arrow { font-size: 1.8rem; }
+        }
+
+        @media (max-width: 900px) and (orientation: landscape) {
+            .game-container { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+            .main-area { border-right: 1px solid var(--border-color); border-bottom: none; min-height: 0; }
+            .pickaxe-container { width: 140px; height: 140px; }
+            .pickaxe-btn { width: 110px; height: 110px; font-size: 3rem; }
+            .gold-display { font-size: 2rem; }
+        }
     </style>
 </head>
 <body data-theme="default">
@@ -143,8 +211,18 @@
 
     <div id="toast-container"></div>
 
+    <!-- ONBOARDING OVERLAY -->
+    <div id="onboarding">
+        <div class="onboarding-overlay"></div>
+        <div class="onboarding-tip step-1" id="onb-tip">
+            <span class="onboarding-arrow">👆</span>
+            ¡Toca el pico para minar!
+        </div>
+    </div>
+
     <div class="game-container" id="game-container" style="display:none;">
         <div class="main-area">
+            <button class="mute-btn" id="mute-btn" title="Silenciar">🔊</button>
             <div class="stats-header">
                 <div class="world-badge" id="world-badge">🌍 Mundo 1</div>
                 <div class="gold-display" id="gold-count">0</div>
@@ -168,29 +246,16 @@
                 <button class="tab-btn" data-tab="tab-log" title="Log">📜</button>
             </div>
 
-            <div class="tab-content active" id="tab-shop">
-                <div id="shop-container" style="display: flex; flex-direction: column; gap: 15px;"></div>
-            </div>
-
+            <div class="tab-content active" id="tab-shop"><div id="shop-container" style="display: flex; flex-direction: column; gap: 15px;"></div></div>
             <div class="tab-content" id="tab-prestige">
-                <div class="shop-item prestige" id="upgrade-prestige">
-                    <div class="item-header"><span>✨ REALIZAR PRESTIGIO ✨</span><span class="item-cost">1M oro</span></div>
-                    <div class="item-desc">Reinicia oro y mejoras. Ganas 10 Puntos y +10% multiplicador.</div>
-                </div>
+                <div class="shop-item prestige" id="upgrade-prestige"><div class="item-header"><span>✨ REALIZAR PRESTIGIO ✨</span><span class="item-cost">1M oro</span></div><div class="item-desc">Reinicia oro y mejoras. Ganas 10 Puntos y +10% multiplicador.</div></div>
                 <h4 style="color: var(--neon-purple); margin-top: 10px;">Tienda de Prestigio</h4>
                 <div class="shop-item" id="prestige-buff-click"><div class="item-header"><span>Fuerza Bruta</span><span class="item-cost" id="cost-pbuff-click">5 Pts</span></div><div class="item-desc">Oro base por clic +5</div></div>
                 <div class="shop-item" id="prestige-buff-gps"><div class="item-header"><span>Automatización</span><span class="item-cost" id="cost-pbuff-gps">10 Pts</span></div><div class="item-desc">Oro base por segundo +10</div></div>
                 <h4 style="color: #ff3366; margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 15px;">🌌 RENACIMIENTO</h4>
-                <div class="shop-item rebirth" id="upgrade-rebirth">
-                    <div class="item-header"><span>🌌 VIAJAR AL MUNDO 2</span><span class="item-cost">100M oro</span></div>
-                    <div class="item-desc">Reinicia TODO. Desbloquea el <strong>Mundo 2</strong> con x1.5 clics y tienda nueva.</div>
-                </div>
+                <div class="shop-item rebirth" id="upgrade-rebirth"><div class="item-header"><span>🌌 VIAJAR AL MUNDO 2</span><span class="item-cost">100M oro</span></div><div class="item-desc">Reinicia TODO. Desbloquea el <strong>Mundo 2</strong> con x1.5 clics y tienda nueva.</div></div>
             </div>
-
-            <div class="tab-content" id="tab-achievements">
-                <div id="achievements-container" style="display: flex; flex-direction: column; gap: 10px;"></div>
-            </div>
-
+            <div class="tab-content" id="tab-achievements"><div id="achievements-container" style="display: flex; flex-direction: column; gap: 10px;"></div></div>
             <div class="tab-content" id="tab-stats">
                 <div class="stats-grid">
                     <div class="stat-box"><div class="stat-value" id="stat-clicks">0</div><div class="stat-label">Clics</div></div>
@@ -199,14 +264,12 @@
                     <div class="stat-box"><div class="stat-value" id="stat-time">0s</div><div class="stat-label">Tiempo</div></div>
                 </div>
             </div>
-
             <div class="tab-content" id="tab-casino">
                 <h3 style="color: var(--gold); text-align: center;">Ruleta de la Fortuna</h3>
                 <p style="font-size: 0.9rem; color: var(--text-muted); text-align: center;">Apuesta el 10% de tu oro. 50% de duplicarlo.</p>
                 <button class="custom-btn" id="btn-gamble" style="font-size: 1.2rem; padding: 15px; background: linear-gradient(45deg, var(--neon-purple), var(--neon-blue)); color: black; font-weight: bold; border: none; border-radius: 12px; cursor: pointer; justify-content: center;">🎲 JUGAR (Apuesta: <span id="gamble-cost">0</span>)</button>
                 <div id="gamble-result" style="text-align: center; margin-top: 20px; font-weight: bold; font-size: 1.2rem;"></div>
             </div>
-
             <div class="tab-content" id="tab-custom">
                 <div class="custom-section">
                     <h4 style="color: var(--gold);">🎨 Temas Predefinidos</h4>
@@ -248,41 +311,27 @@
                     </div>
                 </div>
             </div>
-
             <div class="tab-content" id="tab-profile">
                 <div class="profile-card">
                     <div class="avatar" id="profile-avatar">?</div>
                     <h3 id="profile-username" style="margin-bottom: 5px;">-</h3>
                     <p style="font-size: 0.8rem; color: var(--text-muted);" id="profile-email">-</p>
                 </div>
-                <div class="cloud-status saved" id="cloud-status">
-                    <span id="cloud-icon">☁️</span>
-                    <span id="cloud-text">Conectado a la nube</span>
-                </div>
+                <div class="cloud-status saved" id="cloud-status"><span id="cloud-icon">☁️</span><span id="cloud-text">Conectado a la nube</span></div>
                 <button class="auth-btn" id="btn-save-now" style="background: linear-gradient(45deg, #00f0ff, #9d00ff); color: white;">💾 Guardar Ahora</button>
                 <button class="auth-btn" id="btn-logout" style="background: linear-gradient(45deg, #ff3366, #ff8800); color: white;">🚪 Cerrar Sesión</button>
             </div>
-
-            <div class="tab-content" id="tab-log">
-                <div id="update-log-container"></div>
-            </div>
+            <div class="tab-content" id="tab-log"><div id="update-log-container"></div></div>
         </div>
     </div>
 
     <script>
-        // ============================================================
-        // CONFIGURACIÓN DE SUPABASE
-        // ============================================================
         const SUPABASE_URL = 'https://xhcyhlvggpgnscgcvjso.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_immho_hKudO-SNvJXyoU_g_PfnrVgxh';
-
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // ============================================================
-        // ESTADO
-        // ============================================================
-        let currentUser = null;
-        let isSaving = false;
+        // STATE
+        let currentUser = null, isSaving = false;
         let gold = 0, goldPerClick = 1, goldPerSecond = 0, prestigeLevel = 0, prestigeTokens = 0;
         let achievementMultiplier = 1.0, autoClickerCount = 0, playTime = 0;
         let combo = 0, comboMultiplier = 1, lastClickTime = 0;
@@ -290,6 +339,8 @@
         let isFrenzy = false, frenzyMultiplier = 1;
         let stats = { clicks: 0, totalGold: 0, crits: 0 };
         let world = 1, hasRebirthed = false;
+        let isMuted = false;
+        let onboardingDone = false;
         const rebirthCost = 100000000;
         const worldClickMultiplier = () => world === 2 ? 1.5 : 1.0;
 
@@ -311,7 +362,6 @@
         };
         let shopState = {};
         let prestigeCosts = { clickBuff: 5, gpsBuff: 10 };
-
         let unlockedThemes = ['default'];
         const themeCosts = { cyberpunk: 5000, toxic: 15000, void: 50000 };
         const customSaveCost = 10000;
@@ -330,33 +380,26 @@
         ];
 
         let updateLog = [
-            { v: "v2.0", desc: "¡Sistema de cuentas con Supabase! Todos los features de v1.4 restaurados + guardado en la nube ☁️" },
-            { v: "v1.4", desc: "Rebirth a 100M, Mundo 2 con x1.5 clics y tienda nueva." },
-            { v: "v1.3.5", desc: "Corregido error visual de temas. Temas cuestan oro." }
+            { v: "v2.1", desc: "Diseño responsive móvil, botón de mute y onboarding para nuevos jugadores 📱🔊" },
+            { v: "v2.0", desc: "Sistema de cuentas con Supabase + todos los features restaurados ☁️" },
+            { v: "v1.4", desc: "Rebirth a 100M, Mundo 2 con x1.5 clics y tienda nueva." }
         ];
 
-        // DOM
         const $ = (id) => document.getElementById(id);
-        const authScreen = $('auth-screen');
-        const authMsg = $('auth-msg');
-        const gameContainer = $('game-container');
-        const shopContainer = $('shop-container');
-        const achContainer = $('achievements-container');
-        const toastContainer = $('toast-container');
-        const cloudStatus = $('cloud-status');
-        const cloudIcon = $('cloud-icon');
-        const cloudText = $('cloud-text');
+        const authScreen = $('auth-screen'), authMsg = $('auth-msg'), gameContainer = $('game-container');
+        const shopContainer = $('shop-container'), achContainer = $('achievements-container');
+        const toastContainer = $('toast-container'), cloudStatus = $('cloud-status');
+        const cloudIcon = $('cloud-icon'), cloudText = $('cloud-text');
+        const onboarding = $('onboarding'), muteBtn = $('mute-btn');
 
-        // ============================================================
         // AUDIO
-        // ============================================================
         let audioCtx;
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
         }
         function playSound(type) {
-            if (!audioCtx) return;
+            if (!audioCtx || isMuted) return;
             const osc = audioCtx.createOscillator(); const g = audioCtx.createGain();
             osc.connect(g); g.connect(audioCtx.destination);
             if (type === 'click') {
@@ -382,9 +425,7 @@
             }
         }
 
-        // ============================================================
         // HELPERS
-        // ============================================================
         function formatNumber(num) {
             if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
             if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
@@ -398,30 +439,29 @@
             cloudText.innerText = text;
         }
         function showToast(title, message) {
-            const toast = document.createElement('div');
-            toast.className = 'toast';
+            const toast = document.createElement('div'); toast.className = 'toast';
             toast.innerHTML = `<div style="font-weight:bold; color:var(--gold); margin-bottom:5px;">${title}</div><div style="font-size:0.9rem;">${message}</div>`;
             toastContainer.appendChild(toast);
             setTimeout(() => { toast.style.transition = 'opacity 0.5s'; toast.style.opacity = '0'; setTimeout(() => toast.remove(), 500); }, 4000);
         }
-        function setAuthMsg(msg, isError = true) {
-            authMsg.innerText = msg;
-            authMsg.className = 'auth-msg ' + (isError ? 'error' : 'success');
-        }
+        function setAuthMsg(msg, isError = true) { authMsg.innerText = msg; authMsg.className = 'auth-msg ' + (isError ? 'error' : 'success'); }
 
-        // ============================================================
-        // AUTENTICACIÓN
-        // ============================================================
+        // MUTE
+        function updateMuteBtn() { muteBtn.innerText = isMuted ? '🔇' : '🔊'; }
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted; updateMuteBtn();
+            showToast(isMuted ? '🔇 Silenciado' : '🔊 Sonido activado', '');
+            if (currentUser) saveProgress();
+        });
+
+        // AUTH
         document.querySelectorAll('.auth-tab').forEach(tab => {
             tab.addEventListener('click', () => {
                 document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-                tab.classList.add('active');
-                $('form-' + tab.dataset.authTab).classList.add('active');
-                authMsg.innerText = '';
+                tab.classList.add('active'); $('form-' + tab.dataset.authTab).classList.add('active'); authMsg.innerText = '';
             });
         });
-
         $('btn-register').addEventListener('click', async () => {
             const username = $('register-username').value.trim();
             const email = $('register-email').value.trim();
@@ -429,29 +469,25 @@
             if (username.length < 3) return setAuthMsg('Usuario mín. 3 caracteres');
             if (!email.includes('@')) return setAuthMsg('Email inválido');
             if (password.length < 6) return setAuthMsg('Contraseña mín. 6 caracteres');
-            $('btn-register').disabled = true;
-            setAuthMsg('Creando cuenta...', false);
+            $('btn-register').disabled = true; setAuthMsg('Creando cuenta...', false);
             const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username } } });
             $('btn-register').disabled = false;
             if (error) return setAuthMsg('Error: ' + error.message);
-            if (data.user && !data.session) { setAuthMsg('✅ Revisa tu email para confirmar la cuenta.', false); return; }
+            if (data.user && !data.session) { setAuthMsg('✅ Revisa tu email para confirmar.', false); return; }
             setAuthMsg('✅ ¡Cuenta creada!', false);
             setTimeout(() => enterGame(data.user), 500);
         });
-
         $('btn-login').addEventListener('click', async () => {
             const email = $('login-email').value.trim();
             const password = $('login-password').value;
             if (!email || !password) return setAuthMsg('Rellena todos los campos');
-            $('btn-login').disabled = true;
-            setAuthMsg('Iniciando sesión...', false);
+            $('btn-login').disabled = true; setAuthMsg('Iniciando sesión...', false);
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
             $('btn-login').disabled = false;
             if (error) return setAuthMsg('Error: ' + error.message);
             setAuthMsg('✅ ¡Bienvenido!', false);
             setTimeout(() => enterGame(data.user), 300);
         });
-
         $('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-login').click(); });
         $('register-password').addEventListener('keydown', e => { if (e.key === 'Enter') $('btn-register').click(); });
 
@@ -467,14 +503,25 @@
             await loadProgress();
             startGameLoops();
             renderLog();
+            updateMuteBtn();
+            // Mostrar onboarding si es nuevo
+            if (!onboardingDone) { setTimeout(showOnboarding, 500); }
         }
 
-        // ============================================================
-        // GUARDAR / CARGAR
-        // ============================================================
+        // ONBOARDING
+        function showOnboarding() {
+            onboarding.classList.add('active');
+            const tip = $('onb-tip');
+            setTimeout(() => { tip.innerHTML = '<span class="onboarding-arrow">👆</span>¡Haz clic varias veces seguidas para hacer COMBOS!'; tip.classList.remove('step-1'); tip.classList.add('step-2'); }, 3000);
+            setTimeout(() => { tip.innerHTML = '<span class="onboarding-arrow">🛒</span>Compra mejoras en la tienda de la derecha →'; tip.classList.remove('step-2'); tip.classList.add('step-3'); }, 6000);
+            setTimeout(() => { onboarding.classList.remove('active'); onboardingDone = true; saveProgress(); }, 10000);
+        }
+        onboarding.addEventListener('click', () => { onboarding.classList.remove('active'); onboardingDone = true; saveProgress(); });
+
+        // SAVE/LOAD
         function getSaveData() {
             return {
-                version: 2,
+                version: 3,
                 gold, goldPerClick, goldPerSecond, prestigeLevel, prestigeTokens,
                 achievementMultiplier, autoClickerCount, playTime,
                 stats: { ...stats }, shopState, world, hasRebirthed,
@@ -483,14 +530,14 @@
                 savedThemes: JSON.parse(JSON.stringify(savedThemes)),
                 achievementUnlocked: achievements.map(a => a.unlocked),
                 currentSkin: $('pickaxe-btn').innerText.trim(),
-                currentTheme: document.body.getAttribute('data-theme') || 'default'
+                currentTheme: document.body.getAttribute('data-theme') || 'default',
+                isMuted, onboardingDone
             };
         }
 
         async function saveProgress() {
             if (!currentUser || isSaving) return;
-            isSaving = true;
-            setCloudStatus('saving', 'Guardando...');
+            isSaving = true; setCloudStatus('saving', 'Guardando...');
             const { error } = await supabaseClient.from('profiles').update({ save_data: getSaveData(), updated_at: new Date().toISOString() }).eq('id', currentUser.id);
             isSaving = false;
             if (error) { console.error('Error guardando:', error); setCloudStatus('error', 'Error al guardar'); }
@@ -503,24 +550,19 @@
             if (error) { console.error('Error cargando:', error); initShopState(); renderShop(); renderAchievements(); updateUI(); return; }
             if (!data || !data.save_data || Object.keys(data.save_data).length === 0) {
                 initShopState(); renderShop(); renderAchievements(); renderSavedThemes(); updateUI();
-                setCloudStatus('saved', 'Nuevo jugador');
-                return;
+                setCloudStatus('saved', 'Nuevo jugador'); return;
             }
             const save = data.save_data;
-            gold = save.gold ?? 0;
-            goldPerClick = save.goldPerClick ?? 1;
-            goldPerSecond = save.goldPerSecond ?? 0;
-            prestigeLevel = save.prestigeLevel ?? 0;
-            prestigeTokens = save.prestigeTokens ?? 0;
-            achievementMultiplier = save.achievementMultiplier ?? 1.0;
-            autoClickerCount = save.autoClickerCount ?? 0;
-            playTime = save.playTime ?? 0;
-            world = save.world ?? 1;
-            hasRebirthed = save.hasRebirthed ?? false;
+            gold = save.gold ?? 0; goldPerClick = save.goldPerClick ?? 1; goldPerSecond = save.goldPerSecond ?? 0;
+            prestigeLevel = save.prestigeLevel ?? 0; prestigeTokens = save.prestigeTokens ?? 0;
+            achievementMultiplier = save.achievementMultiplier ?? 1.0; autoClickerCount = save.autoClickerCount ?? 0;
+            playTime = save.playTime ?? 0; world = save.world ?? 1; hasRebirthed = save.hasRebirthed ?? false;
             stats = save.stats || { clicks: 0, totalGold: 0, crits: 0 };
             prestigeCosts = save.prestigeCosts || { clickBuff: 5, gpsBuff: 10 };
             unlockedThemes = save.unlockedThemes || ['default'];
             savedThemes = save.savedThemes || [];
+            isMuted = save.isMuted ?? false;
+            onboardingDone = save.onboardingDone ?? false;
             if (save.achievementUnlocked) save.achievementUnlocked.forEach((u, i) => { if (achievements[i]) achievements[i].unlocked = u; });
             initShopState();
             if (save.shopState) Object.keys(shopState).forEach(k => { if (save.shopState[k]) { shopState[k].cost = save.shopState[k].cost; shopState[k].bought = save.shopState[k].bought; } });
@@ -532,11 +574,10 @@
             renderShop(); renderAchievements(); renderSavedThemes(); updateUI();
             setCloudStatus('saved', 'Progreso cargado');
             showToast('☁️ Cargado', 'Tu progreso se cargó desde la nube.');
+            updateMuteBtn();
         }
 
-        // ============================================================
-        // TIENDA
-        // ============================================================
+        // SHOP
         function initShopState() {
             shopState = {};
             worldShops[world].forEach(item => { shopState[item.id] = { cost: item.cost, bought: 0 }; });
@@ -546,8 +587,7 @@
             worldShops[world].forEach(item => {
                 const state = shopState[item.id];
                 const div = document.createElement('div');
-                div.className = 'shop-item';
-                div.dataset.shopId = item.id;
+                div.className = 'shop-item'; div.dataset.shopId = item.id;
                 div.innerHTML = `<div class="item-header"><span>${item.name}</span><span class="item-cost" data-cost-id="${item.id}">${formatNumber(state.cost)} oro</span></div><div class="item-desc">${item.desc}</div>`;
                 div.addEventListener('click', () => buyShopItem(item.id));
                 shopContainer.appendChild(div);
@@ -574,9 +614,7 @@
             updateUI(); checkAchievements();
         }
 
-        // ============================================================
-        // LOGROS
-        // ============================================================
+        // ACHIEVEMENTS
         function renderAchievements() {
             achContainer.innerHTML = '';
             achievements.forEach(a => {
@@ -599,15 +637,12 @@
             if (newUnlock) { renderAchievements(); saveProgress(); }
         }
 
-        // ============================================================
         // UI
-        // ============================================================
         function renderLog() {
             $('update-log-container').innerHTML = updateLog.slice(0, 3).map(e => 
                 `<div class="log-entry"><div class="log-version">${e.v}</div><div class="log-desc">${e.desc}</div></div>`
             ).join('');
         }
-
         function updateUI() {
             if (!currentUser) return;
             $('gold-count').innerText = formatNumber(gold);
@@ -615,38 +650,30 @@
             if (isFrenzy) gps *= frenzyMultiplier;
             $('gps-count').innerText = `${formatNumber(gps)} oro por segundo`;
             $('prestige-display').innerText = `Prestigio: Nivel ${prestigeLevel} (x${(1 + prestigeLevel * 0.1).toFixed(1)}) | Puntos: ${prestigeTokens}`;
-            $('world-badge').innerText = `🌍 Mundo ${world}${world === 2 ? ' (x1.5 clic)' : ''}`;
+            $('world-badge').innerText = `🌍 Mundo ${world}${world === 2 ? ' (x1.5)' : ''}`;
             updateShopVisual();
-
             $('upgrade-prestige').classList.toggle('disabled', gold < 1000000);
             $('cost-pbuff-click').innerText = `${prestigeCosts.clickBuff} Pts`;
             $('prestige-buff-click').classList.toggle('disabled', prestigeTokens < prestigeCosts.clickBuff);
             $('cost-pbuff-gps').innerText = `${prestigeCosts.gpsBuff} Pts`;
             $('prestige-buff-gps').classList.toggle('disabled', prestigeTokens < prestigeCosts.gpsBuff);
-
             if (hasRebirthed) {
                 $('upgrade-rebirth').classList.add('disabled');
                 $('upgrade-rebirth').querySelector('.item-desc').innerHTML = '✅ <strong style="color:#00ff00;">Ya viajaste al Mundo 2.</strong>';
-            } else {
-                $('upgrade-rebirth').classList.toggle('disabled', gold < rebirthCost);
-            }
-
+            } else $('upgrade-rebirth').classList.toggle('disabled', gold < rebirthCost);
             $('gamble-cost').innerText = formatNumber(Math.floor(gold * 0.1));
             if (comboMultiplier > 1) { $('combo-display').classList.add('active'); $('combo-multiplier').innerText = comboMultiplier; }
             else $('combo-display').classList.remove('active');
-
             $('stat-clicks').innerText = formatNumber(stats.clicks);
             $('stat-gold').innerText = formatNumber(stats.totalGold);
             $('stat-crits').innerText = formatNumber(stats.crits);
             $('stat-time').innerText = `${Math.floor(playTime / 60)}m ${playTime % 60}s`;
-
             document.querySelectorAll('[data-theme]').forEach(btn => {
                 const t = btn.dataset.theme;
                 if (t === 'default') return;
                 if (unlockedThemes.includes(t)) { btn.classList.remove('locked'); btn.innerHTML = btn.innerHTML.replace(' 🔒', ''); }
             });
         }
-
         function createFloatingText(text, x, y, cls = '') {
             const el = document.createElement('div');
             el.classList.add('floating-text'); if (cls) el.classList.add(cls);
@@ -655,9 +682,7 @@
             setTimeout(() => el.remove(), 1000);
         }
 
-        // ============================================================
-        // CLICK PRINCIPAL
-        // ============================================================
+        // CLICK
         let isClicking = false;
         function handlePickaxeClick() {
             if (!currentUser || isClicking) return;
@@ -670,22 +695,20 @@
             let baseGold = goldPerClick * comboMultiplier * getTotalMultiplier() * worldClickMultiplier();
             if (isFrenzy) baseGold *= frenzyMultiplier;
             const isCrit = Math.random() < 0.1;
-            if (isCrit) { baseGold *= 10; stats.crits++; playSound('crit'); }
-            else playSound('click');
+            if (isCrit) { baseGold *= 10; stats.crits++; playSound('crit'); } else playSound('click');
             gold += baseGold; stats.clicks++; stats.totalGold += baseGold;
             const rect = $('pickaxe-btn').getBoundingClientRect();
             const cr = $('pickaxe-container').getBoundingClientRect();
             createFloatingText(`+${formatNumber(baseGold)}`, rect.left - cr.left + rect.width / 2 + (Math.random() * 40 - 20), rect.top - cr.top + rect.height / 2, isCrit ? 'crit' : '');
             updateUI(); checkAchievements();
+            // Quitar onboarding al primer clic
+            if (onboarding.classList.contains('active')) { onboarding.classList.remove('active'); onboardingDone = true; saveProgress(); }
         }
 
-        // ============================================================
-        // BUCLES
-        // ============================================================
+        // LOOPS
         let loopsStarted = false;
         function startGameLoops() {
-            if (loopsStarted) return;
-            loopsStarted = true;
+            if (loopsStarted) return; loopsStarted = true;
             setInterval(() => {
                 if (!currentUser) return;
                 let inc = goldPerSecond * getTotalMultiplier();
@@ -706,12 +729,9 @@
             }, 1000);
             setInterval(() => { if (currentUser) saveProgress(); }, 30000);
         }
-
         window.addEventListener('beforeunload', () => { if (currentUser) saveProgress(); });
 
-        // ============================================================
-        // PEPITAS DORADAS
-        // ============================================================
+        // GOLDEN NUGGET
         function spawnGoldenNugget() {
             if (!currentUser || document.querySelector('.golden-nugget')) return;
             const nugget = document.createElement('div'); nugget.classList.add('golden-nugget');
@@ -730,9 +750,7 @@
         }
         setInterval(() => { if (Math.random() < 0.3) spawnGoldenNugget(); }, 15000);
 
-        // ============================================================
         // CASINO
-        // ============================================================
         $('btn-gamble').addEventListener('click', () => {
             if (!currentUser) return;
             let bet = Math.floor(gold * 0.1);
@@ -751,9 +769,7 @@
             }, 1000);
         });
 
-        // ============================================================
-        // PRESTIGIO / REBIRTH
-        // ============================================================
+        // PRESTIGE / REBIRTH
         $('upgrade-prestige').addEventListener('click', () => {
             if (!currentUser || gold < 1000000) return;
             prestigeLevel++; prestigeTokens += 10;
@@ -762,40 +778,33 @@
             createFloatingText(`¡PRESTIGIO ${prestigeLevel}!`, $('pickaxe-container').offsetWidth / 2, $('pickaxe-container').offsetHeight / 2, 'win');
             updateUI(); checkAchievements(); saveProgress();
         });
-
         $('prestige-buff-click').addEventListener('click', () => {
             if (!currentUser || prestigeTokens < prestigeCosts.clickBuff) return;
             prestigeTokens -= prestigeCosts.clickBuff; goldPerClick += 5;
             prestigeCosts.clickBuff = Math.floor(prestigeCosts.clickBuff * 2);
             updateUI(); saveProgress();
         });
-
         $('prestige-buff-gps').addEventListener('click', () => {
             if (!currentUser || prestigeTokens < prestigeCosts.gpsBuff) return;
             prestigeTokens -= prestigeCosts.gpsBuff; goldPerSecond += 10;
             prestigeCosts.gpsBuff = Math.floor(prestigeCosts.gpsBuff * 2);
             updateUI(); saveProgress();
         });
-
         $('upgrade-rebirth').addEventListener('click', () => {
             if (!currentUser || gold < rebirthCost || hasRebirthed) return;
-            if (!confirm("⚠️ ¿SEGURO? Reiniciarás TODO para viajar al Mundo 2. No se puede deshacer.")) return;
-            playSound('rebirth');
-            hasRebirthed = true; world = 2;
+            if (!confirm("⚠️ ¿SEGURO? Reiniciarás TODO para viajar al Mundo 2.")) return;
+            playSound('rebirth'); hasRebirthed = true; world = 2;
             gold = 0; goldPerClick = 1; goldPerSecond = 0; autoClickerCount = 0;
             prestigeLevel = 0; prestigeTokens = 0;
             prestigeCosts = { clickBuff: 5, gpsBuff: 10 };
-            combo = 0; comboMultiplier = 1;
-            stats = { clicks: 0, totalGold: 0, crits: 0 };
+            combo = 0; comboMultiplier = 1; stats = { clicks: 0, totalGold: 0, crits: 0 };
             initShopState(); renderShop();
             showToast('🌌 ¡REBIRTH!', 'Bienvenido al Mundo 2. x1.5 clics.');
             createFloatingText('¡MUNDO 2!', $('pickaxe-container').offsetWidth / 2, $('pickaxe-container').offsetHeight / 2, 'win');
             updateUI(); checkAchievements(); saveProgress();
         });
 
-        // ============================================================
         // TABS
-        // ============================================================
         document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -804,14 +813,10 @@
             });
         });
 
-        // ============================================================
-        // TEMAS
-        // ============================================================
+        // THEMES
         function applyTheme(themeId, isCustom = false, customColors = null) {
-            document.body.style.removeProperty('--bg-color');
-            document.body.style.removeProperty('--gold');
-            document.body.style.removeProperty('--neon-blue');
-            document.body.style.removeProperty('--neon-purple');
+            document.body.style.removeProperty('--bg-color'); document.body.style.removeProperty('--gold');
+            document.body.style.removeProperty('--neon-blue'); document.body.style.removeProperty('--neon-purple');
             document.querySelectorAll('.custom-btn').forEach(b => b.classList.remove('selected'));
             document.body.removeAttribute('data-theme');
             if (isCustom && customColors) {
@@ -825,7 +830,6 @@
                 if (btn) btn.classList.add('selected');
             }
         }
-
         document.querySelectorAll('[data-theme]').forEach(btn => {
             btn.addEventListener('click', () => {
                 if (!currentUser) return;
@@ -839,30 +843,22 @@
                 }
             });
         });
-
         $('btn-apply-custom').addEventListener('click', () => {
             if (!currentUser) return;
-            applyTheme(null, true, {
-                bg: $('color-bg').value, gold: $('color-gold').value,
-                blue: $('color-blue').value, purple: $('color-purple').value
-            });
+            applyTheme(null, true, { bg: $('color-bg').value, gold: $('color-gold').value, blue: $('color-blue').value, purple: $('color-purple').value });
         });
-
         $('btn-save-custom').addEventListener('click', () => {
             if (!currentUser || gold < customSaveCost) return;
             const name = prompt("Nombre del tema:", `Tema ${savedThemes.length + 1}`);
             if (name && name.trim()) {
                 gold -= customSaveCost;
                 savedThemes.push({ name, bg: $('color-bg').value, gold: $('color-gold').value, blue: $('color-blue').value, purple: $('color-purple').value });
-                renderSavedThemes();
-                showToast('💾 Tema guardado', name);
+                renderSavedThemes(); showToast('💾 Tema guardado', name);
                 updateUI(); saveProgress();
             }
         });
-
         function renderSavedThemes() {
-            const c = $('saved-themes-container');
-            const msg = $('no-themes-msg');
+            const c = $('saved-themes-container'), msg = $('no-themes-msg');
             if (savedThemes.length === 0) { if (msg) msg.style.display = 'block'; return; }
             if (msg) msg.style.display = 'none';
             c.querySelectorAll('.custom-btn').forEach(b => b.remove());
@@ -874,7 +870,6 @@
                 c.appendChild(btn);
             });
         }
-
         document.querySelectorAll('[data-skin]').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('[data-skin]').forEach(b => b.classList.remove('selected'));
@@ -883,29 +878,19 @@
             });
         });
 
-        // ============================================================
-        // CUENTA
-        // ============================================================
-        $('btn-save-now').addEventListener('click', async () => {
-            await saveProgress(); showToast('💾 Guardado', 'Progreso guardado en la nube.');
-        });
-
+        // ACCOUNT
+        $('btn-save-now').addEventListener('click', async () => { await saveProgress(); showToast('💾 Guardado', 'Progreso guardado en la nube.'); });
         $('btn-logout').addEventListener('click', async () => {
             if (!confirm('¿Cerrar sesión? Tu progreso se guardará.')) return;
-            await saveProgress();
-            await supabaseClient.auth.signOut();
-            location.reload();
+            await saveProgress(); await supabaseClient.auth.signOut(); location.reload();
         });
 
-        // ============================================================
         // EVENT LISTENERS
-        // ============================================================
         $('pickaxe-btn').addEventListener('mousedown', handlePickaxeClick);
+        $('pickaxe-btn').addEventListener('touchstart', (e) => { e.preventDefault(); handlePickaxeClick(); }, { passive: false });
         window.addEventListener('keydown', e => { if (e.code === 'Space' && currentUser) { e.preventDefault(); handlePickaxeClick(); } });
 
-        // ============================================================
-        // INICIALIZACIÓN
-        // ============================================================
+        // INIT
         (async () => {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session && session.user) enterGame(session.user);
